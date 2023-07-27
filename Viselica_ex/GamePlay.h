@@ -181,20 +181,27 @@ public:
 					system("pause");
 					break;
 				}
-				else
+				else if (i!=word.size()-1)
 				{
 					continue;
 				}
+				else
+				{
+					cout << "Нет такой буквы!" << endl;
+					_try_count++;
+					system("pause");
+					break;
+				}
 			}
-
-			cout << "Нет такой буквы!" << endl;
-			_try_count++;
-			system("pause");
-			break;
 
 			if (!is_win(word, _file_words[index_word]))
 			{
 				cout << "ВЫ ПОБЕДИЛИ!!" << endl;
+			}
+			if (_try_count == _max_try)
+			{
+				cout << "YOU LOOOSEEEER!!!" << endl;
+				break;
 			}
 		} while (_try_count != _max_try);
 	}
@@ -204,4 +211,5 @@ private:
 	{
 		return str1 == str2;
 	}
+	
 };
