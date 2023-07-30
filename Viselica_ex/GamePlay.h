@@ -27,11 +27,11 @@ class GamePlay
 	string _file_words[6];
 
 	int _word_size;
-	//Player& _player;
+	Player& _player;
 
 public:
 
-	GamePlay() {}
+	GamePlay(Player& player) :_player(player) {}
 
 	void read_words_from_file()
 	{
@@ -129,18 +129,20 @@ public:
 		srand(time(NULL));
 		int index_word = rand() & _file_words->size();
 		word = _file_words[index_word];
-
+		
 		const int _size = _file_words[index_word].size();
 
 		_max_try = _size;
 
 		vector<char> tmp_word;
-		//string tmp_word;
 		auto delimeter = '_';
+
 		for (int i = 0; i < _size; i++)
 		{
 			tmp_word.push_back(delimeter);
 		}
+
+
 
 		do
 		{
@@ -150,38 +152,46 @@ public:
 
 			cout << "\nЭто слово состоит из " << _size << " букв" << endl;
 
+			cout << "Разгаданное слово: " << endl;
 			for (int i = 0; i < _size; i++)
 			{
 				cout << tmp_word[i];
 			}
 
-			cout << "\nОсталось попыток: " << _max_try - _try_count << endl;
+			cout << "\nОсталось попыток: " << _max_try - _try_count+1 << endl;
 
 			cout << "\nВведите букву(язык русский!), регистр не важен: " << endl;
 
-			char _letter;
-			cin >> _letter;
+			char _letter = _player.get_letter();
 			_letter = toUpper(_letter);
-			//_letter = _player.get_letter();
+
+			vector<char> letters;
+			letters.push_back(_letter);
 
 			for (int i = 0; i < word.size(); i++)
 			{
 				if (_letter == tmp_word[i])
 				{
-					cout << "Такая буква уже есть, выберите другую!" << endl;
+					cout << "Такая буква уже была, выберите другую!" << endl;
 					system("pause");
 					break;
 				}
 				if (word[i] == _letter)
 				{
 					cout << "Есть такая буква!" << endl;
-					_try_count++;
 					tmp_word[i] = word[i];
-					//tmp_word.push_back(_letter);
+					for (int j = 0; j < _size; j++)
+					{
+						if (word[j] == _letter)
+						{
+							tmp_word[j] = word[j];
+						}
+					}
+					_try_count++;
 					system("pause");
 					break;
 				}
-				else if (i!=word.size()-1)
+				else if (i != word.size() - 1)
 				{
 					continue;
 				}
@@ -194,22 +204,52 @@ public:
 				}
 			}
 
-			if (!is_win(word, _file_words[index_word]))
+			if (is_win(tmp_word, _file_words[index_word]))
+
 			{
+				system("cls");
 				cout << "ВЫ ПОБЕДИЛИ!!" << endl;
+				get_stat(index_word, tmp_word, _size);
+				return;
 			}
-			if (_try_count == _max_try)
+
+			if (_try_count == _max_try+1)
 			{
-				cout << "YOU LOOOSEEEER!!!" << endl;
-				break;
+				system("cls");
+				cout << "YOU LOOOSE!!!" << endl;
+				get_stat(index_word, tmp_word, _size);
+
+				return;
 			}
-		} while (_try_count != _max_try);
+		} while (_try_count != _max_try+1);
+	}
+
+	void get_stat(int index, vector<char> vec, int size)
+	{
+		cout << "Статистика игры: " << endl;
+		cout << "Затрачено попыток: " << _try_count << endl;
+		cout << "Загаданое слово: " << _file_words[index] << endl;
+		cout << "Буквы введенные игроком: " << endl;
+		
+		for (auto& i : vec)
+		{
+			cout << i << ", ";
+		}
+
 	}
 
 private:
-	bool is_win(string str1, string str2)
+
+	bool is_win(vector<char> vec, string str)
 	{
-		return str1 == str2;
+		for (int i = 0; i < vec.size(); i++)
+		{
+			if (vec[i] != str[i])
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
-	
 };

@@ -16,7 +16,8 @@ int main()
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
-	GamePlay play;
+	Player player;
+	GamePlay play(player);
 
 	play.read_words_from_file();
 	play.print_words();
