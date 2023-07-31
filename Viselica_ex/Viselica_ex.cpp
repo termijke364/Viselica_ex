@@ -1,13 +1,9 @@
 ﻿#include <windows.h>
 #include <iostream>
-#include <stdio.h>
-#include <io.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys\locking.h>
-#include <string.h>
-#include <ctype.h>
+
 #include "GamePlay.h"
+#include "Picture.h"
+#include "Menu.h"
 using namespace std;
 
 int main()
@@ -16,16 +12,7 @@ int main()
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
-	Player player;
-	GamePlay play(player);
-
-	play.read_words_from_file();
-	play.print_words();
-
-	play.game();
-
-	
-
+	navigate_menu();
 
 	return 0;
 }

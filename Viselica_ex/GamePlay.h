@@ -2,31 +2,30 @@
 #include <windows.h>
 #include <iostream>
 #include <stdio.h>
-#include <io.h>
-#include <stdlib.h>
 #include <time.h>
-#include <sys\locking.h>
 #include <string.h>
-#include <ctype.h>
 #include <fstream>
 #include <string>
 #include <string.h>
 #include <sstream>
-#include "Player.h"
 #include <vector>
+#include <time.h>
 
+#include "Player.h"
+#include "Picture.h"
 using namespace std;
 
 const char input_words[]{ "words.txt" };
 
 class GamePlay
 {
-	int _max_try;
+	string _word;
+	int _max_try{};
 	int _try_count{};
-	string word;
 	string _file_words[6];
+	vector<char> _input_letters;
 
-	int _word_size;
+	Picture* _picture;
 	Player& _player;
 
 public:
@@ -35,6 +34,7 @@ public:
 
 	void read_words_from_file()
 	{
+		system("cls");
 		auto stream = fstream(input_words, ios_base::in);
 
 		if (!stream.is_open())
@@ -68,6 +68,8 @@ public:
 		}
 
 		stream.close();
+		cout << "Данные из файла успешно загружены!" << endl;
+		system("pause");
 	}
 
 	char toUpper(char letter) {
@@ -82,36 +84,29 @@ public:
 		}
 	}
 
-	void print_words() //для проверки работы загрузки слов из файла
-	{
-		for (int i = 0; i < _file_words->length() + 1; i++)
-		{
-			cout << _file_words[i] << endl;
-			cout << _file_words[i].size() << endl;
-		}
-	}
-
 	void words_description(int index_word)
 	{
 		switch (index_word)
 		{
 		case 0:
-			cout << "Kis Kis" << endl;
+			cout << "Когда остальные слепо следуют за истиной, помни - ничто не (.....)." <<
+				" \nКогда остальные ограничены моралью или законом, помни -  всё дозволено." << endl;
 			break;
 		case 1:
-			cout << "Овощь green" << endl;
+			cout << "Крыльями машет, Зубами клацает, Ноздри раздувает, Огонь извергает!" << endl;
 			break;
 		case 2:
-			cout << "WHROOM!!! WHROOM!!! Motherfucker!!!" << endl;
+			cout << "Получил власть, которая и не снилась его отцу" << endl;
 			break;
 		case 3:
-			cout << "Шиндовс98" << endl;
+			cout << "Умирает последней" << endl;
 			break;
 		case 4:
 			cout << "Чай, кофе, пить!" << endl;
 			break;
 		case 5:
-			cout << "AppleWatch, Xiaomi Mi Band" << endl;
+			cout << "Свет это поток ...., обладающих определённой энергией," <<
+				"\nимпульсом, собственным моментом импульса и нулевой массой " << endl;
 			break;
 		default:
 			break;
@@ -122,14 +117,16 @@ public:
 	{
 		if (_file_words->empty())
 		{
-			cout << "Список пуст. Загрузите слова из файла (пункт меню №1)";
+			system("cls");
+			cout << "Список пуст. Загрузите слова из файла (пункт меню №1)" << endl;;
+			system("pause");
 			return;
 		}
 
 		srand(time(NULL));
-		int index_word = rand() & _file_words->size();
-		word = _file_words[index_word];
-		
+		int index_word = rand() & (_file_words->size() - 1);
+		_word = _file_words[index_word];
+
 		const int _size = _file_words[index_word].size();
 
 		_max_try = _size;
@@ -141,8 +138,7 @@ public:
 		{
 			tmp_word.push_back(delimeter);
 		}
-
-
+		clock_t start = clock();
 
 		do
 		{
@@ -158,17 +154,16 @@ public:
 				cout << tmp_word[i];
 			}
 
-			cout << "\nОсталось попыток: " << _max_try - _try_count+1 << endl;
+			cout << "\nОсталось попыток: " << _max_try - _try_count << endl;
 
 			cout << "\nВведите букву(язык русский!), регистр не важен: " << endl;
 
 			char _letter = _player.get_letter();
 			_letter = toUpper(_letter);
 
-			vector<char> letters;
-			letters.push_back(_letter);
+			_input_letters.push_back(_letter);
 
-			for (int i = 0; i < word.size(); i++)
+			for (int i = 0; i < _word.size(); i++)
 			{
 				if (_letter == tmp_word[i])
 				{
@@ -176,22 +171,22 @@ public:
 					system("pause");
 					break;
 				}
-				if (word[i] == _letter)
+				if (_word[i] == _letter)
 				{
 					cout << "Есть такая буква!" << endl;
-					tmp_word[i] = word[i];
+					tmp_word[i] = _word[i];
 					for (int j = 0; j < _size; j++)
 					{
-						if (word[j] == _letter)
+						if (_word[j] == _letter)
 						{
-							tmp_word[j] = word[j];
+							tmp_word[j] = _word[j];
 						}
 					}
 					_try_count++;
 					system("pause");
 					break;
 				}
-				else if (i != word.size() - 1)
+				else if (i != _word.size() - 1)
 				{
 					continue;
 				}
@@ -205,23 +200,37 @@ public:
 			}
 
 			if (is_win(tmp_word, _file_words[index_word]))
-
 			{
+				clock_t end = clock();
 				system("cls");
-				cout << "ВЫ ПОБЕДИЛИ!!" << endl;
-				get_stat(index_word, tmp_word, _size);
+
+				get_stat(index_word, _input_letters, _size);
+
+				double duration = (double)(end - start) / CLOCKS_PER_SEC;
+				cout << "\nВы потратили время: " << duration / 60 << " минут(ы)" << endl;
+
+				_picture->print_win_logo();
+				system("pause");
+
 				return;
 			}
 
-			if (_try_count == _max_try+1)
+			if (_try_count == _max_try)
 			{
+				clock_t end = clock();
 				system("cls");
-				cout << "YOU LOOOSE!!!" << endl;
-				get_stat(index_word, tmp_word, _size);
+
+				get_stat(index_word, _input_letters, _size);
+
+				double duration = (double)(end - start) / CLOCKS_PER_SEC;
+				cout << "\nВы потратили время: " << duration / 60 << " минут(ы)" << endl;
+
+				_picture->print_loose_logo();
+				system("pause");
 
 				return;
 			}
-		} while (_try_count != _max_try+1);
+		} while (_try_count != _max_try || _max_try == 0 || _try_count < 0);
 	}
 
 	void get_stat(int index, vector<char> vec, int size)
@@ -230,12 +239,11 @@ public:
 		cout << "Затрачено попыток: " << _try_count << endl;
 		cout << "Загаданое слово: " << _file_words[index] << endl;
 		cout << "Буквы введенные игроком: " << endl;
-		
+
 		for (auto& i : vec)
 		{
 			cout << i << ", ";
 		}
-
 	}
 
 private:
