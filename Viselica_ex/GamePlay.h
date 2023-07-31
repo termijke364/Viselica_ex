@@ -212,7 +212,7 @@ public:
 				_picture->print_win_logo();
 				system("pause");
 
-				return;
+				exit(1);
 			}
 
 			if (_try_count == _max_try)
@@ -228,7 +228,7 @@ public:
 				_picture->print_loose_logo();
 				system("pause");
 
-				return;
+				exit(1);
 			}
 		} while (_try_count != _max_try || _max_try == 0 || _try_count < 0);
 	}
